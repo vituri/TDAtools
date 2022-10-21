@@ -35,7 +35,7 @@ devtools::install_github("vituri/TDAtools")
 
 Let's fix some notation:
 
-- `X` is a data.frame with possibly factor columns. When needed, we select only the numeric columns (like when calculating the distance matrix of `X`) and denote it by $X$. The rows of `X` are called observations, and the columns are called variables;
+- `X` is a data.frame with numeric and, possibly, factor columns. When needed, we select only the numeric columns (like when calculating the distance matrix of `X`) and denote it by $X$. The rows of `X` are called observations, and the columns are called variables;
 
 - `f_X` is a vector with one number for each observation of `X`. That is: `f_X` is the result of applying a *filter function* $f: X \to \mathbb{R}$ to `X`. We provide many filter functions;
 
@@ -43,11 +43,13 @@ Let's fix some notation:
 
 ## Graph-reducing algorithms
 
-We provide the Mapper algorithm and the Ball Mapper algorithm. Both return a list consisting of:
+We provide the Mapper algorithm and the Ball-Mapper algorithm. Both return a list consisting of:
 
 - a graph with weighted vertices;
 
 - a list showing which points of `X` are in each vertex.
+
+See the vignettes for more examples. (to-do)
 
 ## Examples
 
