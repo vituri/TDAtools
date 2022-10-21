@@ -33,7 +33,7 @@ You can install the development version of TDAtools from [GitHub](https://github
 
 ## Notation
 
-Let's fix come notation:
+Let's fix some notation:
 
 - `X` is a data.frame with possibly factor columns. When needed, we select only the numeric columns (like when calculating the distance matrix of `X`) and denote it by $X$. The rows of `X` are called observations, and the columns are called variables;
 
@@ -111,3 +111,9 @@ Or color it by `y`:
 mp %>% plot_mapper(data_column = 'y')
 ```
 
+## To do
+
+- Vignettes using mapper with factor variables
+- Ball Mapper documentation
+- Persistent homology examples
+- Data analysis using some vertices of the mapper + machine learning
