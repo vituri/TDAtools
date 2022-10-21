@@ -2,9 +2,9 @@ Package: TDAtools
 Type: Package
 Title: TDA + Mapper tools and interface
 Version: 0.1.0
-Author: Vituri
+Author: Guilherme Vituri
 Encoding: UTF-8
-Maintainer: <viturivituri@gmail.com>
+Maintainer: Guilherme Vituri <viturivituri@gmail.com>
 Description: .....................
 License: What license is it under?
 LazyData: true
