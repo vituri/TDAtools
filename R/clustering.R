@@ -1,3 +1,4 @@
+#' HDBScan clustering function
 clust.hdbscan = function(
     distance_matrix, n_points_dist = NULL, min_pts_per_cluster = NULL, min_percent_points_per_cluster = 5
     ,put_all_outliers_in_a_single_cluster = FALSE
@@ -23,6 +24,7 @@ clust.hdbscan = function(
 
 }
 
+#' First cutoff clustering function
 clust.first_cutoff = function(distance_matrix, num_breaks_in_histogram_of_distances = 10, ...) {
 
   distance_object = distance_matrix %>% as.dist()
@@ -44,6 +46,7 @@ clust.first_cutoff = function(distance_matrix, num_breaks_in_histogram_of_distan
   clustering = cutree(tree = dendrogram_of_distances, h = height_to_cut)
 }
 
+#' DBScan clustering function
 clust.dbscan = function(
     distance_matrix, epsilon = 1, min_points_per_cluster = 1, border_points = TRUE, put_all_outliers_in_a_single_cluster = FALSE
     , ...
@@ -71,7 +74,10 @@ number_points_in_dist_object = function(n) {
   ceiling(x)
 }
 
-split_pullback = function(pullback, data = NULL, X = NULL, distance_matrix = NULL, clustering_function = clustering_hdbscan) {
+#' Split the pullback of a covering
+split_pullback = function(
+    pullback, data = NULL, X = NULL, distance_matrix = NULL, distance_function = stats::dist, clustering_function = clustering_hdbscan
+) {
 
   splited_pullback =
     pullback %>%
@@ -85,7 +91,7 @@ split_pullback = function(pullback, data = NULL, X = NULL, distance_matrix = NUL
 
       if (is.null(distance_matrix)) {
         # etc.
-        # distance_matrix = ...
+        distance_matrix = distance_function(pre_image)
       } else {
         pre_image_distance_matrix = distance_matrix[pre_image, pre_image]
       }

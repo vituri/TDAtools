@@ -1,0 +1,113 @@
+---
+output: github_document
+---
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "man/figures/README-",
+  out.width = "100%"
+)
+
+# devtools::build_readme()
+
+```
+
+# TDAtools
+
+<!-- badges: start -->
+<!-- badges: end -->
+
+TDAtools provides many functions to help data scientists using TDA.
+
+## Installation
+
+You can install the development version of TDAtools from [GitHub](https://github.com/) with:
+
+```{r}
+# devtools::install_github("vituri/TDAtools")
+```
+
+## Notation
+
+Let's fix come notation:
+
+- `X` is a data.frame with possibly factor columns. When needed, we select only the numeric columns (like when calculating the distance matrix of `X`) and denote it by $X$. The rows of `X` are called observations, and the columns are called variables;
+
+- `f_X` is a vector with one number for each observation of `X`. That is: `f_X` is the result of applying a *filter function* $f: X \to \mathbb{R}$ to `X`. We provide many filter functions;
+
+- `distance_matrix` is a matrix of distances calculated with `X` OR a function that when applied to `X` results in such a matrix
+
+## Graph-reducing algorithms
+
+We provide the Mapper algorithm and the Ball Mapper algorithm. Both return a list consisting of:
+
+- a graph with weighted vertices;
+
+- a list showing which points of `X` are in each vertex.
+
+## Examples
+
+Let `X` be a sample of random points in a noisy circle:
+
+```{r example}
+library(TDAtools)
+
+X = data.noisy_circle()
+
+```
+
+Let the filter function be the projetion on the x-axis and let color `X` using it:
+
+```{r}
+f_X = X$x
+
+color_band = ggplot2::cut_interval(f_X, n = 50)
+col_vector = viridis::viridis(nlevels(color_band))[as.integer(color_band)]
+plot(X, col = col_vector)
+```
+
+Now we embed `X` in $R^4$:
+
+```{r}
+X$z = 0
+X$w = 0
+```
+
+and calculate its Mapper Graph:
+
+```{r}
+mp =
+  mapper(
+    X = X
+    ,f_X = f_X
+  )
+```
+
+The result is a list with many objects. For example, the pullback of each interval in the covering:
+
+```{r}
+mp$pullback |> str()
+```
+
+Let's plot the mapper graph:
+
+```{r}
+mp$graph %>% plot()
+```
+
+Or, for a better visualization, we use the `networkVis` package and color the nodes using the mean value of the `x` variable of `X`:
+
+```{r}
+mp %>% plot_mapper()
+```
+
+Or color it by `y`:
+
+```{r}
+mp %>% plot_mapper(data_column = 'y')
+```
+

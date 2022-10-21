@@ -5,7 +5,7 @@ date: "`r Sys.Date()`"
 output: html_document
 ---
 
-
+- PARALELIZAR OS MAP USANDO FUTURE!!
 
 - trocar tudo os if por funções genéricas!!
 
@@ -31,3 +31,6 @@ output: html_document
 
 - outros pacotes:
 https://github.com/rrrlw/ripserr
+
+- Funções pra colorir edges? A cor do edge é calculada com alguma função aplicada num par de vértices (leia-se: num par de subconjuntos de X)
+obs: as funções devem conter argumentos opcionais: f(X, distance_matrix, ...)

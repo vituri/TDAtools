@@ -7,11 +7,11 @@
 ball_mapper(D, epsilon, id = NULL)
 }
 \arguments{
-\item{epsilon}{A non-negative number}
+\item{D}{A matrix of distances.}
 
-\item{id}{A possible subset of indexes of X}
+\item{epsilon}{A non-negative number.}
 
-\item{X}{Matrix of distances}
+\item{id}{A possible subset of indexes of D.}
 }
 \description{
 Ball mapper

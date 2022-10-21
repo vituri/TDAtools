@@ -1,13 +1,15 @@
 edge_combinations = function(x) {
 
-  edge_matrix = NULL
-
   if (length(x) == 2) {
     edge_matrix = data.frame(v1 = x[1], v2 = x[2])
     return(edge_matrix)
   }
 
-  edge_matrix = combn(x = x, m = 2) %>% t() %>% as.data.frame() %>% set_names(c('v1', 'v2'))
+  edge_matrix =
+    combn(x = x, m = 2) %>%
+    t() %>%
+    as.data.frame() %>%
+    set_names(c('v1', 'v2'))
 
   edge_matrix
 }
@@ -38,7 +40,9 @@ make_mapper_edges = function(clustered_pullback) {
 }
 
 make_mapper_graph = function(mapper_vertices, mapper_edges) {
-  G = igraph::graph_from_data_frame(d = mapper_edges, directed = FALSE, vertices = mapper_vertices)
+  G = igraph::graph_from_data_frame(
+    d = mapper_edges, directed = FALSE, vertices = mapper_vertices
+    )
 
   G
 }

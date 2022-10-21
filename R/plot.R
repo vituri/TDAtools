@@ -62,11 +62,13 @@ library(visNetwork)
     plot_mapper(data_column = names(X)[6])
 }
 
+#' Plot the mapper graph interactively
+#' @export
 plot_mapper = function(mp, data_column = names(mp$data)[1], color_vertex_by = f, color_scale = viridis::viridis(10)) {
   # browser()
   G = mp$graph
 
-  graph_net = toVisNetworkData(G)
+  graph_net = visNetwork::toVisNetworkData(G)
 
   # arrumar tamanho dos vértices!!
 
@@ -106,8 +108,8 @@ plot_mapper = function(mp, data_column = names(mp$data)[1], color_vertex_by = f,
 
   graph_net$nodes$label = values
 
-  visNetwork(nodes = graph_net$nodes, edges = graph_net$edges, main = glue::glue('Coloring by {data_column}')) %>%
-    visLayout(randomSeed = 9, improvedLayout = TRUE)
+  visNetwork::visNetwork(nodes = graph_net$nodes, edges = graph_net$edges, main = glue::glue('Coloring by {data_column}')) %>%
+    visNetwork::visLayout(randomSeed = 9, improvedLayout = TRUE)
 }
 
 # coloring plots ----------------------------------------------------------

@@ -22,6 +22,7 @@ add_X = function(mp, X) {
 }
 
 add_distance = function(mp, distance_matrix = dist) {
+
   if (is.function(distance_matrix)) {
     mp$distance_matrix = distance_matrix(mp$X) %>% as.matrix()
   } else {
@@ -78,10 +79,20 @@ calculate_mapper_graph = function(mp) {
   invisible(mp)
 }
 
+#' Calculate the mapper graph of a set
+#' @param X A dataframe or matrix.
+#' @param distance_matrix A dist object or matrix of distances; or a function that return such object when applied to X.
+#' @param f_X A numeric vector with length equal to the rows of X; or a function that return such a vector when applied to X.
+#' @param covering A matrix with intervals or a function that returns such an matrix.
+#' @param clustering_function A clustering function.
+#' @return A mapper object.
+#' @export
+#' @examples mp = mapper()
+#' mp %>% plot_mapper()
 mapper = function(
-    X
+    X = data.noisy_circle()
     ,distance_matrix = stats::dist
-    ,f_X
+    ,f_X = X[1,]
     ,covering = cover.uniform
     ,clustering_function = clust.first_cutoff
 ) {
@@ -94,14 +105,14 @@ mapper = function(
     add_clustering_method(clustering_function = clustering_function) %>%
     calculate_mapper_graph()
 
-  plot(mp$graph)
+  # plot(mp$graph)
 
   invisible(mp)
 }
 
 \(x) {
 
-  X = data.noisy_circle(n = 5000, radius = 2)
+  X = data.noisy_circle(n = 1000, radius = 2)
   D = dist(X) %>% as.matrix()
 
   f_X = X$x

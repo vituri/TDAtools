@@ -1,3 +1,7 @@
+#' Distance from a point x to a set X
+#' @param x A point.
+#' @param X A vector of points.
+#' @returns A vector of the same size as x, with the corresponding distance from x to each element of X.
 dist_point_to_set = function(x, X){
   # do I need sqrt here?
   # more distances?
@@ -8,6 +12,9 @@ dist_point_to_set = function(x, X){
   d = colSums((t(X)-x)^2)
 }
 
+#' Farthest point sample of a set
+#' @param X A dataframe or matrix of points.
+#' @param p The amount of points after the procedure.
 farthest_points_sample = function(X, p = 1000){
   X = as.matrix(X)
   n = nrow(X)
