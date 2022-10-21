@@ -27,8 +27,8 @@ TDAtools provides many functions to help data scientists using TDA.
 
 You can install the development version of TDAtools from [GitHub](https://github.com/) with:
 
-```{r}
-# devtools::install_github("vituri/TDAtools")
+```{r, eval=FALSE}
+devtools::install_github("vituri/TDAtools")
 ```
 
 ## Notation
