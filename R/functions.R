@@ -58,3 +58,7 @@ if_function_then_eval = function(.x, ...) {
     .x
   }
 }
+
+is_dist_or_matrix = function(x) {
+  is.matrix(x) || class(x) %in% 'dist'
+}

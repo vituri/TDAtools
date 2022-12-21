@@ -6,11 +6,28 @@
 \usage{
 plot_mapper(
   mp,
-  data_column = names(mp$data)[1],
-  color_vertex_by = f,
-  color_scale = viridis::viridis(10)
+  vector_of_values = names(mp$X)[1],
+  vector_name = NULL,
+  aggregate_function = f,
+  color_scale = viridis::viridis(10),
+  use_physics = TRUE
 )
+}
+\arguments{
+\item{mp}{The mapper graph}
+
+\item{vector_of_values}{A vector with one value per each point of `X`. These values will be aggregated with `aggregate_function` to color each vertex.
+If a string, then will be taken as a column name of `X`.}
+
+\item{aggregate_function}{A function to apply to each vertex `v` of `X`.}
+
+\item{color_scale}{A color scale.}
 }
 \description{
 Plot the mapper graph interactively
+}
+\details{
+Let `v` be a vertex and `x1`, ..., `xn` the points of `X` in `v`.
+Denote by `y1`, ..., `yn` the corresponding values of `vector_of_values` associated to `x1`, ..., `xn`. We then apply the
+`aggregate_function` to `y1`, ..., `yn` to obtain a value, which will then be the color of `v`.
 }

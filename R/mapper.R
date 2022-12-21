@@ -2,32 +2,30 @@ new_mapper = function() {
   list()
 }
 
-add_data = function(mp, data) {
-
-  if (!is.data.frame(data)) {
-    data %<>% as.data.frame()
-  }
-
-  mp$data = data
-
-  mp$X = data %>% select(where(is.numeric))
-
-  invisible(mp)
-}
+# add_data = function(mp, data) {
+#
+#   if (!is.data.frame(data)) {
+#     data %<>% as.data.frame()
+#   }
+#
+#   mp$data = data
+#
+#   mp$X = data %>% select(where(is.numeric))
+#
+#   invisible(mp)
+# }
 
 add_X = function(mp, X) {
+
   mp$X = X
+  mp$X_num = X %>% select(where(is.numeric)) %>% as.matrix()
 
   invisible(mp)
 }
 
-add_distance = function(mp, distance_matrix = dist) {
+add_distance = function(mp, distance = dist) {
 
-  if (is.function(distance_matrix)) {
-    mp$distance_matrix = distance_matrix(mp$X) %>% as.matrix()
-  } else {
-    mp$distance_matrix = distance_matrix %>% as.matrix()
-  }
+  mp$distance = distance
 
   invisible(mp)
 }
@@ -64,13 +62,18 @@ calculate_mapper_graph = function(mp) {
   mp$pullback = calculate_pullback(covering = mp$covering, f_X = mp$f_X)
 
   mp$clustered_pullback = split_pullback(
-    pullback = mp$pullback, distance_matrix = mp$distance_matrix, clustering_function = mp$clustering_function
+    pullback = mp$pullback
+    ,X_num = mp$X_num
+    ,distance_matrix = if (is_dist_or_matrix(mp$distance)) mp$distance
+    ,distance_function = if (is.function(mp$distance)) mp$distance
+    ,clustering_function = mp$clustering_function
     ,data = mp$data, X = mp$X
   )
 
-  mp$flattened_clustered_pullback = mp$clustered_pullback %>% flatten()
 
-  mp$vertices = mp$flattened_clustered_pullback %>% names()
+  mp$X_points_in_vertex = mp$clustered_pullback %>% flatten()
+
+  mp$vertices = mp$X_points_in_vertex %>% names()
 
   mp$edges = make_mapper_edges(mp$clustered_pullback)
 
@@ -81,7 +84,7 @@ calculate_mapper_graph = function(mp) {
 
 #' Calculate the mapper graph of a set
 #' @param X A dataframe or matrix.
-#' @param distance_matrix A dist object or matrix of distances; or a function that return such object when applied to X.
+#' @param distance A dist object or matrix of distances; or a function that return such object when applied to X.
 #' @param f_X A numeric vector with length equal to the rows of X; or a function that return such a vector when applied to X.
 #' @param covering A matrix with intervals or a function that returns such an matrix.
 #' @param clustering_function A clustering function.
@@ -91,15 +94,15 @@ calculate_mapper_graph = function(mp) {
 #' mp %>% plot_mapper()
 mapper = function(
     X = data.noisy_circle()
-    ,distance_matrix = stats::dist
+    ,distance = stats::dist
     ,f_X = X[1,]
     ,covering = cover.uniform
     ,clustering_function = clust.first_cutoff
 ) {
   mp =
     new_mapper() %>%
-    add_data(X) %>%
-    add_distance(distance_matrix = distance_matrix) %>%
+    add_X(X) %>%
+    add_distance(distance = distance) %>%
     add_filter(f_X) %>%
     add_covering(covering = covering) %>%
     add_clustering_method(clustering_function = clustering_function) %>%
@@ -112,8 +115,13 @@ mapper = function(
 
 \(x) {
 
-  X = data.noisy_circle(n = 1000, radius = 2)
-  D = dist(X) %>% as.matrix()
+  library(progressr)
+  handlers(global = TRUE)
+  handlers("progress")
+
+  X = data.noisy_circle(n = 50000, radius = 2)
+  # D = dist(X) %>% as.matrix()
+  D = \(x) dist(x)
 
   f_X = X$x
 
@@ -133,11 +141,22 @@ mapper = function(
   #     add_clustering_method(clustering_function = partial(clust.dbscan, epsilon = 0.2, min_points_per_cluster = 2, put_all_outliers_in_a_single_cluster = FALSE)) %>%
   #     calculate_mapper_graph()
 
+  # debugonce(calculate_mapper_graph)
+
+  library(future)
+  plan(multisession)
+  # plan(sequential)
+
+  tictoc::tic()
   mp =
     mapper(
       X = X
       ,f_X = f_X
+      ,covering = \(x) cover.uniform(x = x, num_intervals = 15, percent_overlap = 20)
+      # ,distance = D
+      ,clustering_function = partial(clust.first_cutoff, num_breaks_in_histogram_of_distances = 10)
     )
+  tictoc::toc()
 
   mp$pullback
   mp$clustered_pullback
@@ -145,6 +164,7 @@ mapper = function(
 
   mp$graph %>% plot()
 
-  mp %>% plot_mapper()
+  mp$X
+  mp %>% plot_mapper(vector_of_values = 'x')
 }
 

@@ -6,10 +6,11 @@
 \usage{
 split_pullback(
   pullback,
+  X_num = NULL,
   data = NULL,
   X = NULL,
   distance_matrix = NULL,
-  distance_function = stats::dist,
+  distance_function = NULL,
   clustering_function = clustering_hdbscan
 )
 }

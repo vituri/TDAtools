@@ -18,7 +18,7 @@ make_mapper_edges = function(clustered_pullback) {
   pb_x =
     clustered_pullback %>%
     flatten() %>%
-    imap_dfr(function(pb, i) {
+    furrr::future_imap_dfr(function(pb, i) {
       data.frame(X_points = pb, Vertex = i)
     }) %>%
     as_tibble() %>%

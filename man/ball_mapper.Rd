@@ -4,14 +4,14 @@
 \alias{ball_mapper}
 \title{Ball mapper}
 \usage{
-ball_mapper(D, epsilon, id = NULL)
+ball_mapper(X, distance_matrix, epsilon, id = NULL)
 }
 \arguments{
-\item{D}{A matrix of distances.}
+\item{distance_matrix}{A matrix of distances.}
 
 \item{epsilon}{A non-negative number.}
 
-\item{id}{A possible subset of indexes of D.}
+\item{id}{A possible subset of indexes of distance_matrix.}
 }
 \description{
 Ball mapper

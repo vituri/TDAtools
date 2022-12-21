@@ -6,7 +6,7 @@
 \usage{
 mapper(
   X = data.noisy_circle(),
-  distance_matrix = stats::dist,
+  distance = stats::dist,
   f_X = X[1, ],
   covering = cover.uniform,
   clustering_function = clust.first_cutoff
@@ -15,7 +15,7 @@ mapper(
 \arguments{
 \item{X}{A dataframe or matrix.}
 
-\item{distance_matrix}{A dist object or matrix of distances; or a function that return such object when applied to X.}
+\item{distance}{A dist object or matrix of distances; or a function that return such object when applied to X.}
 
 \item{f_X}{A numeric vector with length equal to the rows of X; or a function that return such a vector when applied to X.}
 

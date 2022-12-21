@@ -17,8 +17,11 @@ Imports: igraph,
   glue,
   viridis,
   intervals,
-  visNetwork
+  visNetwork,
+  future,
+  furrr
 Depends: shiny,
   dplyr,
   purrr,
-  ggplot2
+  ggplot2,
+  progressr

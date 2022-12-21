@@ -1,18 +1,18 @@
 #' Ball mapper
-#' @param D A matrix of distances.
+#' @param distance_matrix A matrix of distances.
 #' @param epsilon A non-negative number.
-#' @param id A possible subset of indexes of D.
+#' @param id A possible subset of indexes of distance_matrix.
 #' @export
 
-ball_mapper = function(D, epsilon, id = NULL){
+ball_mapper = function(X, distance_matrix, epsilon, id = NULL){
   # melhorar documentação do id; possibilidade de só passar o n e usar farthest points
-  if (is.null(id)) id = seq_along(D[,1])
+  if (is.null(id)) id = seq_along(distance_matrix[,1])
   n = length(id)
 
-  points_in_vertex = vector(mode = "list", length = n)
+  X_points_in_vertex = vector(mode = "list", length = n)
   i = 1
   for (i in seq_along(id)){
-    points_in_vertex[[i]] = which(D[id[i], ] <= epsilon, useNames = FALSE)
+    X_points_in_vertex[[i]] = which(distance_matrix[id[i], ] <= epsilon, useNames = FALSE)
   }
 
   edges = list()
@@ -20,8 +20,8 @@ ball_mapper = function(D, epsilon, id = NULL){
 
   edges =
     seq_along(id) %>%
-    map_dfr(function(i) {
-      vec = sapply(X = points_in_vertex, FUN = function(x) any(x %in% points_in_vertex[[i]]))
+    furrr::future_map_dfr(function(i) {
+      vec = sapply(X = X_points_in_vertex, FUN = function(x) any(x %in% X_points_in_vertex[[i]]))
       vec = which(vec)
       tibble(i = i, j = vec)
     })
@@ -30,14 +30,16 @@ ball_mapper = function(D, epsilon, id = NULL){
     edges %>%
     filter(i < j)
 
-  ball_mapper_graph =
+  graph =
     igraph::graph_from_edgelist(as.matrix(edges), directed = FALSE) %>%
     igraph::simplify(remove.loops = TRUE)
 
-  return(list(ball_mapper_graph = ball_mapper_graph, points_in_vertex = points_in_vertex))
+  igraph::V(graph)$name = seq_along(id)
+
+  return(list(X = X, graph = graph, X_points_in_vertex = X_points_in_vertex))
 }
 
-test_ball_mapper = function() {
+\(x) {
   X = data.noisy_circle(n = 1000, radius = 10, sd = 0.5)
   Y = X
   Y$x = Y$x + 15
@@ -48,18 +50,14 @@ test_ball_mapper = function() {
   X$v = 1
   X$u = 2
 
-  D = dist(X) %>% as.matrix()
+  distance_matrix = dist(X) %>% as.matrix()
 
   id = nrow(X)
   epsilon = 4
 
-  l = ball_mapper(D, epsilon, id = sample(nrow(X), nrow(X) / 10))
-  G = l$ball_mapper_graph
+  bm = ball_mapper(distance_matrix, X = X, epsilon, id = sample(nrow(X), nrow(X) / 25))
+  bm %>% plot_mapper(vector_of_values = X$x + X$y, use_physics = TRUE)
 
-  l$points_in_vertex
-
-  coords = igraph::layout_with_fr(graph = G)
-  igraph::plot.igraph(G, layout = coords)
 }
 
 \(x) {

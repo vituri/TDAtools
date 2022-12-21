@@ -64,25 +64,40 @@ library(visNetwork)
 
 #' Plot the mapper graph interactively
 #' @export
-plot_mapper = function(mp, data_column = names(mp$data)[1], color_vertex_by = f, color_scale = viridis::viridis(10)) {
-  # browser()
+#' @param mp The mapper graph
+#' @param vector_of_values A vector with one value per each point of `X`. These values will be aggregated with `aggregate_function` to color each vertex.
+#' If a string, then will be taken as a column name of `X`.
+#' @param aggregate_function A function to apply to each vertex `v` of `X`.
+#' @param color_scale A color scale.
+#' @details Let `v` be a vertex and `x1`, ..., `xn` the points of `X` in `v`.
+#' Denote by `y1`, ..., `yn` the corresponding values of `vector_of_values` associated to `x1`, ..., `xn`. We then apply the
+#' `aggregate_function` to `y1`, ..., `yn` to obtain a value, which will then be the color of `v`.
+plot_mapper = function(
+    mp, vector_of_values = names(mp$X)[1], vector_name = NULL, aggregate_function = f
+    ,color_scale = viridis::viridis(10), use_physics = TRUE
+) {
   G = mp$graph
 
   graph_net = visNetwork::toVisNetworkData(G)
 
-  # arrumar tamanho dos vértices!!
+  if (length(vector_of_values) == 1) {
+    main_text = glue::glue('Coloring by {vector_of_values}')
+    vector_of_values = mp$X[[vector_of_values]]
+  } else {
 
-  vertex_name = '1:1'
-  vertex_name = '9:1'
+    if (is.null(vector_name)) vector_name = 'vector'
+
+    main_text = glue::glue('Coloring by {vector_name}')
+  }
 
   l =
     igraph::V(G)$name %>%
-    map(function(vertex_name) {
+    furrr::future_map(function(vertex_name) {
 
-      ids = mp$flattened_clustered_pullback[[vertex_name]]
+      ids = mp$X_points_in_vertex[[vertex_name]]
 
-      value = mp$data %>% slice(ids) %>% .[[data_column]] %>% f()
-      size = mp$flattened_clustered_pullback[[vertex_name]] %>% length()
+      value = vector_of_values[ids] %>% aggregate_function()
+      size = mp$X_points_in_vertex[[vertex_name]] %>% length()
 
       list(value = value, size = size)
     }) %>%
@@ -91,7 +106,7 @@ plot_mapper = function(mp, data_column = names(mp$data)[1], color_vertex_by = f,
   size = l$size %>% unlist()
   values = l$value %>% unlist()
 
-  if (is.numeric(mp$data[[data_column]])) {
+  if (is.numeric(vector_of_values)) {
     colors = values %>% color_vector(colors = color_scale)
   } else {
     values = values %>% factor()
@@ -101,18 +116,20 @@ plot_mapper = function(mp, data_column = names(mp$data)[1], color_vertex_by = f,
   }
 
   graph_net$nodes$color = colors
-
   graph_net$nodes$value = size
-  # graph_net$nodes$size = size
   graph_net$nodes$title = glue::glue('Size: {size} <br>Value: {values}')
-
   graph_net$nodes$label = values
 
-  visNetwork::visNetwork(nodes = graph_net$nodes, edges = graph_net$edges, main = glue::glue('Coloring by {data_column}')) %>%
-    visNetwork::visLayout(randomSeed = 9, improvedLayout = TRUE)
+  visNetwork::visNetwork(nodes = graph_net$nodes, edges = graph_net$edges, main = main_text) %>%
+    visNetwork::visLayout(randomSeed = 9, improvedLayout = TRUE) %>%
+    visNetwork::visPhysics(solver = 'repulsion', enabled = use_physics)
 }
 
 # coloring plots ----------------------------------------------------------
+# f = function(x) {
+#   UseMethod()
+# }
+
 
 f = function(x) {
   if (is.numeric(x)) {

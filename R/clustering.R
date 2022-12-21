@@ -76,22 +76,22 @@ number_points_in_dist_object = function(n) {
 
 #' Split the pullback of a covering
 split_pullback = function(
-    pullback, data = NULL, X = NULL, distance_matrix = NULL, distance_function = stats::dist, clustering_function = clustering_hdbscan
+    pullback, X_num = NULL, data = NULL, X = NULL, distance_matrix = NULL, distance_function = NULL, clustering_function = clustering_hdbscan
 ) {
+
+  p <- progressr::progressor(along = pullback)
 
   splited_pullback =
     pullback %>%
-    imap(function(pre_image, i) {
+    furrr::future_imap(function(pre_image, i) {
 
-      glue::glue('Clustering pullback {i}...') %>% print()
+      # glue::glue('Clustering pullback {i}...') %>% print()
+      p(glue::glue("Clustering pullback nº {i}..."))
 
       pre_image_size = length(pre_image)
 
-      ## !! formatar direito quando tem tamanho 1
-
       if (is.null(distance_matrix)) {
-        # etc.
-        distance_matrix = distance_function(pre_image)
+        pre_image_distance_matrix = distance_function(X_num[pre_image, ]) %>% as.matrix()
       } else {
         pre_image_distance_matrix = distance_matrix[pre_image, pre_image]
       }
@@ -99,7 +99,9 @@ split_pullback = function(
       if (pre_image_size <= 1) {
         clustering = 1
       } else {
-        clustering = clustering_function(distance_matrix = pre_image_distance_matrix, pre_image = pre_image, data = data, X = X)
+        clustering = clustering_function(
+          distance_matrix = pre_image_distance_matrix, pre_image = pre_image, data = data, X = X
+        )
       }
 
       clustering_formatted = paste0(i, ':', clustering)
